@@ -46,8 +46,14 @@ public class ServerHandler implements Runnable {
             case CREATE_ACCOUNT:
                 createAccountHandler(args.get(0));
                 break;
+            case DELETE_ACCOUNT:
+                deleteAccountHandler();
+                break;
             case LOG_IN:
                 loginHandler(args.get(0));
+                break;
+            case LOG_OUT:
+                logoutHandler();
                 break;
             case SEND_MESSAGE:
                 byte[] recipient = args.get(0);
@@ -78,6 +84,31 @@ public class ServerHandler implements Runnable {
         sendResponseMessage(protocol.Exception.NONE);
     }
 
+    private void deleteAccountHandler() {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            sendResponseMessage(protocol.Exception.NOT_LOGGED_IN);
+            return;
+        }
+
+        // Close the socket
+        try {
+            Socket socket = Server.clients.get(user);
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("ERROR: Could not close the socket.");
+            e.printStackTrace();
+        }
+
+        // Delete the user
+        Server.clients.remove(user);
+        user.clear();
+        user = null;
+
+        // Send a success message
+        sendResponseMessage(protocol.Exception.NONE);
+    }
+
     private void loginHandler(byte[] username) {
         user = new User(username);
 
@@ -100,6 +131,29 @@ public class ServerHandler implements Runnable {
         // Update the socket
         if (oldSocket != socket)
             Server.clients.put(user, socket);
+
+        // Send a success message
+        sendResponseMessage(protocol.Exception.NONE);
+    }
+
+    private void logoutHandler() {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            sendResponseMessage(protocol.Exception.NOT_LOGGED_IN);
+            return;
+        }
+
+        // Close the socket
+        try {
+            Socket socket = Server.clients.get(user);
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("ERROR: Could not close the socket.");
+            e.printStackTrace();
+        }
+
+        // Remove the socket
+        Server.clients.put(user, null);
 
         // Send a success message
         sendResponseMessage(protocol.Exception.NONE);

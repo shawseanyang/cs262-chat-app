@@ -61,6 +61,12 @@ public class User {
         return message;
     }
 
+    public void clear() {
+        messages.clear();
+        undeliveredMessages.clear();
+        username = null;
+    }
+
     // TODO: Edit to regex match wildcards
     @Override
     public boolean equals(Object o) {
