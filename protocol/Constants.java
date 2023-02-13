@@ -2,9 +2,11 @@ package protocol;
 
 public class Constants {
     public final static int PORT = 8080;
-    public final static byte ARGUMENT_SEPARATOR = 9;
-    public final static byte MESSAGE_SEPARATOR = 10;
-    public final static byte ESCAPE_CHARACTER = 92;
+    public final static byte ARGUMENT_SEPARATOR = 9; // '\t'
+    public final static byte ARGUMENT_SEPARATOR_LETTER = 116; // 't'
+    public final static byte MESSAGE_SEPARATOR = 10; // '\n'
+    public final static byte MESSAGE_SEPARATOR_LETTER = 110; // 'n'
+    public final static byte ESCAPE_CHARACTER = 92; // '\\'
 
     public final static byte CURRENT_VERSION = 1;
 

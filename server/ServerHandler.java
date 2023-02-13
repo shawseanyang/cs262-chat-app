@@ -229,8 +229,7 @@ public class ServerHandler implements Runnable {
             // Send the message
             sendResponseMessage(protocol.Exception.NONE, args);
 
-            // Exponential backoff
-            // Wait for acknowledgement
+            // Wait for acknowledgement with exponential backoff
             int waitTime = 50;
             Server.messageIDs.add(messageID);
             while (Server.messageIDs.contains(messageID)) {
@@ -254,7 +253,7 @@ public class ServerHandler implements Runnable {
             return;
         }
 
-        // Remove the keyword
+        // Remove the UUID
         Server.messageIDs.remove(messageID);
     }
 
