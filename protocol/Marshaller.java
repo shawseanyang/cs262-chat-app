@@ -1,6 +1,7 @@
 package protocol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import utility.ByteConverter;
 
@@ -33,8 +34,18 @@ public class Marshaller {
         Exception exception =
           Exception.fromByte(marshalledMessage[Constants.EXCEPTION_POSITION]);
 
+        // extract content portion from byte[]
+        int end = marshalledMessage.length;
+        
+        // remove message separator at the end if it exists
+        if (marshalledMessage[marshalledMessage.length - 1] == Constants.MESSAGE_SEPARATOR) {
+          end--;
+        }
+
+        byte[] content = Arrays.copyOfRange(marshalledMessage, Constants.CONTENT_POSITION, end);
+
         // unmarshall the arguments portion
-        ArrayList<byte[]> arguments = unmarshallArguments(marshalledMessage);
+        ArrayList<byte[]> arguments = unmarshallArguments(content);
 
         return new Message(version, operation, exception, arguments);
     }
@@ -43,12 +54,22 @@ public class Marshaller {
     private static byte[] marshallArguments(ArrayList<byte[]> arguments) {
       // parse arguments into an ArrayList of bytes, perform escaping, then convert back to byte[]
       ArrayList<Byte> output = new ArrayList<Byte>();
+      boolean first = true;
       for (byte[] argument : arguments) {
+        // Only add argument separators when it isn't the first argument
+        if (!first) {
+          output.add(Constants.ARGUMENT_SEPARATOR);
+        }
+        else {
+          first = false;
+        }
         for (byte b : escapeRestrictedCharacters(argument)) {
           output.add(b);
         }
-        output.add(Constants.ARGUMENT_SEPARATOR);
       }
+      // Add message separator character
+      output.add(Constants.MESSAGE_SEPARATOR);
+
       return ByteConverter.byteArrayListToByteArray(output);
     }
 
