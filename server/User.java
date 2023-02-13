@@ -15,8 +15,20 @@ public class User {
 
         public QueuedMessage(User sender, byte[] message, UUID id) {
             this.sender = sender;
-            this.id = id;
             this.message = message;
+            this.id = id;
+        }
+
+        public User getSender() {
+            return sender;
+        }
+    
+        public byte[] getMessage() {
+            return message;
+        }
+    
+        public UUID getMessageId() {
+            return id;
         }
     }
 
@@ -34,18 +46,6 @@ public class User {
         return username;
     }
 
-    public User getSender() {
-        return messages.peek().sender;
-    }
-
-    public byte[] getMessage() {
-        return messages.peek().message;
-    }
-
-    public UUID getMessageId() {
-        return messages.peek().id;
-    }
-
     public void addMessage(User sender, byte[] message, UUID messageID) {
         // Don't add duplicate messages
         if (undeliveredMessages.contains(messageID))
@@ -53,6 +53,14 @@ public class User {
         
         messages.add(new QueuedMessage(sender, message, messageID));
         undeliveredMessages.add(messageID);
+    }
+    
+    public boolean hasMessages() {
+        return !messages.isEmpty();
+    }
+
+    public QueuedMessage peekMessage() {
+        return messages.peek();
     }
 
     public QueuedMessage removeMessage() {
@@ -67,7 +75,6 @@ public class User {
         username = null;
     }
 
-    // TODO: Edit to regex match wildcards
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

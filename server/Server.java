@@ -10,11 +10,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 public class Server {
 
     // Inactive users should have a socket value of null
     static HashMap<User, Socket> clients = new HashMap<User, Socket>();
+    // Keep track of messageIDs sent to receipients that haven't been acknowledged
+    static HashSet<UUID> messageIDs = new HashSet<UUID>();
     public static void main(String[] args) {
         System.out.println("Server is running...");
 

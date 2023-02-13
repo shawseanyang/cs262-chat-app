@@ -12,7 +12,7 @@ import protocol.*;
 import protocol.Constants;
 import protocol.Message;
 import protocol.Operation;
-
+import server.User.QueuedMessage;
 import utility.ByteConverter;
 
 public class ServerHandler implements Runnable {
@@ -63,6 +63,12 @@ public class ServerHandler implements Runnable {
                 break;
             case LIST_ACCOUNTS:
                 listAccountsHandler(args.get(0));
+                break;
+            case DISTRIBUTE_MESSAGE:
+                distributeMessageHandler();
+                break;
+            case DISTRIBUTE_MESSAGE_RESPONSE:
+                distributeMessageResponseHandler(ByteConverter.byteArrayToUUID(args.get(0)));
                 break;
         }
     }
@@ -203,7 +209,54 @@ public class ServerHandler implements Runnable {
 
     /* Recipient-related functions */
 
+    private void distributeMessageHandler() {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            sendResponseMessage(protocol.Exception.NOT_LOGGED_IN);
+            return;
+        }
 
+        // Get the messages
+        while (user.hasMessages()) {
+            ArrayList<byte[]> args = new ArrayList<byte[]>();
+            
+            QueuedMessage message = user.peekMessage();
+            UUID messageID = message.getMessageId();
+            args.add(message.getSender().getUsername());
+            args.add(message.getMessage());
+            args.add(ByteConverter.UUIDToByteArray(messageID));
+
+            // Send the message
+            sendResponseMessage(protocol.Exception.NONE, args);
+
+            // Exponential backoff
+            // Wait for acknowledgement
+            int waitTime = 50;
+            Server.messageIDs.add(messageID);
+            while (Server.messageIDs.contains(messageID)) {
+                try {
+                    Thread.sleep(waitTime *= 2);
+                } catch (InterruptedException e) {
+                    System.err.println("ERROR: Thread interrupted.");
+                    e.printStackTrace();
+                }
+            }
+
+            // Remove the message
+            user.removeMessage();
+        }
+    }
+
+    private void distributeMessageResponseHandler(UUID messageID) {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            sendResponseMessage(protocol.Exception.NOT_LOGGED_IN);
+            return;
+        }
+
+        // Remove the keyword
+        Server.messageIDs.remove(messageID);
+    }
 
     /* Utility functions */
 
