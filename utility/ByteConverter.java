@@ -14,7 +14,7 @@ public class ByteConverter {
     return string.getBytes();
   }
 
-  public static byte[] ByteArrayListToByteArray(ArrayList<Byte> bytes) {
+  public static byte[] byteArrayListToByteArray(ArrayList<Byte> bytes) {
     byte[] result = new byte[bytes.size()];
     for (int i = 0; i < bytes.size(); i++) {
       result[i] = bytes.get(i);

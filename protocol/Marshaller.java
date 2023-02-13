@@ -49,68 +49,67 @@ public class Marshaller {
         }
         output.add(Constants.ARGUMENT_SEPARATOR);
       }
-      return ByteConverter.ByteArrayListToByteArray(output);
+      return ByteConverter.byteArrayListToByteArray(output);
     }
 
-    // TODO: Broken
+    // unmarshalls arguments by separating them by the the argument separator and unescaping special characters
     private static ArrayList<byte[]> unmarshallArguments(byte[] marshalledMessage) {
-      // unescape the arguments and then split them by the argument separator
-      ArrayList<byte[]> arguments = new ArrayList<byte[]>();
-      byte[] unescapedMessage = unescapeRestrictedCharacters(marshalledMessage);
-      int argumentStart = Constants.CONTENT_POSITION;
-      for (int i = Constants.CONTENT_POSITION; i < unescapedMessage.length; i++) {
-        if (unescapedMessage[i] == Constants.ARGUMENT_SEPARATOR) {
-          byte[] argument = new byte[i - argumentStart];
-          for (int j = 0; j < argument.length; j++) {
-            argument[j] = unescapedMessage[argumentStart + j];
-          }
-          arguments.add(argument);
-          argumentStart = i + 1;
-        }
+      ArrayList<byte[]> result = new ArrayList<byte[]>();
+
+      // split the arguments by the argument separator and then unescape them
+      byte[][] args = ByteConverter.splitByteArray(marshalledMessage, Constants.ARGUMENT_SEPARATOR);
+      for (byte[] arg : args) {
+        result.add(unescapeRestrictedCharacters(arg));
       }
-      return arguments;
+      
+      return result;
     }
 
-    // TODO: Broken
     // Escapes restricted characters by adding the escape character in front of them. Ex: \t becomes \\t and \n becomes \\n
     private static byte[] escapeRestrictedCharacters(byte[] input) {
       // parse input into an ArrayList of bytes, perform escaping, then convert back to byte[]
       ArrayList<Byte> output = new ArrayList<Byte>();
+
       for (byte b : input) {
+        // "\t" --> "\\t"
         if (b == Constants.ARGUMENT_SEPARATOR) {
           output.add(Constants.ESCAPE_CHARACTER);
-        } else if (b == Constants.MESSAGE_SEPARATOR) {
-          output.add(Constants.ESCAPE_CHARACTER);
+          output.add(Constants.ARGUMENT_SEPARATOR_LETTER);
         }
-        else if (b == Constants.ESCAPE_CHARACTER) {
+        // "\n" --> "\\n"
+        else if (b == Constants.MESSAGE_SEPARATOR) {
           output.add(Constants.ESCAPE_CHARACTER);
+          output.add(Constants.MESSAGE_SEPARATOR_LETTER);
         }
-        output.add(b);
+        else {
+          output.add(b);
+        }
       }
-      // convert ArrayList<Byte> to byte[]
-      byte[] outputArray = new byte[output.size()];
-      for (int i = 0; i < output.size(); i++) {
-        outputArray[i] = output.get(i);
-      }
-      return outputArray;
+
+      return ByteConverter.byteArrayListToByteArray(output);
     }
 
-    // TODO: Broken
     // Unescapes restricted characters by removing the escape character in front of them. Ex: \\t becomes \t and \\n becomes \n
     private static byte[] unescapeRestrictedCharacters(byte[] input) {
       // parse input into an ArrayList of bytes, perform unescaping, then convert back to byte[]
       ArrayList<Byte> output = new ArrayList<Byte>();
       for (int i = 0; i < input.length; i++) {
-        if (input[i] == Constants.ESCAPE_CHARACTER) {
+        // "\\t" -> "\t"
+        if (i != input.length - 1 && input[i] == Constants.ESCAPE_CHARACTER
+          && input[i + 1] == Constants.ARGUMENT_SEPARATOR_LETTER) {
+          output.add(Constants.ARGUMENT_SEPARATOR);
           i++;
         }
-        output.add(input[i]);
+        // "\\n" -> "\n"
+        else if (i != input.length - 1 && input[i] == Constants.ESCAPE_CHARACTER
+        && input[i + 1] == Constants.MESSAGE_SEPARATOR_LETTER) {
+          output.add(Constants.MESSAGE_SEPARATOR);
+          i++;
+        }
+        else
+          output.add(input[i]);
       }
-      // convert ArrayList<Byte> to byte[]
-      byte[] outputArray = new byte[output.size()];
-      for (int i = 0; i < output.size(); i++) {
-        outputArray[i] = output.get(i);
-      }
-      return outputArray;
+      
+      return ByteConverter.byteArrayListToByteArray(output);
     }
 }
