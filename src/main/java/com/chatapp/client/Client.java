@@ -58,7 +58,7 @@ public class Client {
         System.out.println("-> Error: You must connect to a server first.");
         continue;
       }
-      
+
       // create input and output streams to the server
       try {
         server_in = new DataInputStream(socket.getInputStream());
@@ -68,7 +68,6 @@ public class Client {
         e.printStackTrace();
       }
 
-      // TODO: execute the command
       if (command instanceof CreateAccountCommand) {
         CreateAccountCommand cast = (CreateAccountCommand) command;
         try {
