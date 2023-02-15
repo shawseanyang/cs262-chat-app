@@ -1,4 +1,4 @@
-package protocol;
+package com.chatapp.protocol;
 
 import java.util.ArrayList;
 

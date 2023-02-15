@@ -1,10 +1,8 @@
-package tests;
+package com.chatapp.protocol;
 
 import java.lang.Exception;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import protocol.*;
 
 public class MarshallerTest {
   public static void main(String[] args) {
@@ -22,7 +20,7 @@ public class MarshallerTest {
   public static void testEscaping() throws Exception {
     byte version = Constants.CURRENT_VERSION;
     Operation operation = Operation.CREATE_ACCOUNT;
-    protocol.Exception exception = protocol.Exception.NONE;
+    com.chatapp.protocol.Exception exception = com.chatapp.protocol.Exception.NONE;
 
     // define an account name that has all the special characters to be escaped
     String username = "weird\taccount\nname\\huh";
@@ -47,7 +45,7 @@ public class MarshallerTest {
   public static void testMarshall() throws Exception {
     byte version = Constants.CURRENT_VERSION;
     Operation operation = Operation.CREATE_ACCOUNT;
-    protocol.Exception exception = protocol.Exception.NONE;
+    com.chatapp.protocol.Exception exception = com.chatapp.protocol.Exception.NONE;
 
     // define the content, convert it to bytes, then grab the length
     String username = "username1";

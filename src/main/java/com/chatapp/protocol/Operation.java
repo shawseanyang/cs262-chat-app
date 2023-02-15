@@ -1,4 +1,4 @@
-package protocol;
+package com.chatapp.protocol;
 
 // An enumeration of possible operations
 

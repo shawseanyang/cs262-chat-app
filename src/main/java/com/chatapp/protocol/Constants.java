@@ -1,4 +1,4 @@
-package protocol;
+package com.chatapp.protocol;
 
 public class Constants {
     public final static int PORT = 8080;

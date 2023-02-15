@@ -1,22 +1,18 @@
-package server;
+package com.chatapp.server;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.UUID;
 
 public class User {
 
     static class QueuedMessage {
         private User sender;
         private byte[] message;
-        private UUID id;
 
-        public QueuedMessage(User sender, byte[] message, UUID id) {
+        public QueuedMessage(User sender, byte[] message) {
             this.sender = sender;
             this.message = message;
-            this.id = id;
         }
 
         public User getSender() {
@@ -26,33 +22,33 @@ public class User {
         public byte[] getMessage() {
             return message;
         }
-    
-        public UUID getMessageId() {
-            return id;
-        }
     }
 
     private byte[] username;
+    private Socket socket;
+
     private Queue<QueuedMessage> messages;
-    private HashSet<UUID> undeliveredMessages;
 
     public User(byte[] username) {
         this.username = username;
+        this.socket = null;
         this.messages = new LinkedList<QueuedMessage>();
-        this.undeliveredMessages = new HashSet<UUID>();
     }
 
     public byte[] getUsername() {
         return username;
     }
 
-    public void addMessage(User sender, byte[] message, UUID messageID) {
-        // Don't add duplicate messages
-        if (undeliveredMessages.contains(messageID))
-            return;
-        
-        messages.add(new QueuedMessage(sender, message, messageID));
-        undeliveredMessages.add(messageID);
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    public void addMessage(User sender, byte[] message) {
+        messages.add(new QueuedMessage(sender, message));
     }
     
     public boolean hasMessages() {
@@ -65,23 +61,11 @@ public class User {
 
     public QueuedMessage removeMessage() {
         QueuedMessage message = messages.poll();
-        undeliveredMessages.remove(message.id);
         return message;
     }
 
     public void clear() {
         messages.clear();
-        undeliveredMessages.clear();
         username = null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        return Arrays.equals(username, user.username);
     }
 }
