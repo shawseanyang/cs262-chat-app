@@ -29,8 +29,16 @@ public class ClientHandler {
     // Send a message to the server
     sendMessage(Operation.CREATE_ACCOUNT, com.chatapp.protocol.Exception.NONE, args);
 
+    // -- TESTING --
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     // Wait for a response from the server
     Message response = readMessage();
+
+    System.out.println("Received confirmation from server.");
 
     // Check the response for errors
     if (response.getException() == com.chatapp.protocol.Exception.USER_ALREADY_EXISTS)
@@ -39,12 +47,12 @@ public class ClientHandler {
       throw new InvalidUsernameException("The username " + command.getUsername() + " is invalid.");
   }
 
-  public static void deleteAccount(DeleteAccountCommand command) throws InvalidUsernameException {
+  public static void deleteAccount(DeleteAccountCommand command) throws InvalidUsernameException, UserDoesNotExistException {
     // Convert to an argument arraylist
     ArrayList<byte[]> args = parseStringsToArguments(new String[]{command.getUsername()});
 
     // Create a message to send to the server
-    sendMessage(Operation.CREATE_ACCOUNT, com.chatapp.protocol.Exception.NONE, args);
+    sendMessage(Operation.DELETE_ACCOUNT, com.chatapp.protocol.Exception.NONE, args);
 
     // Wait for a response from the server
     Message response = readMessage();
@@ -52,6 +60,8 @@ public class ClientHandler {
     // Check the response for errors
     if (response.getException() == com.chatapp.protocol.Exception.INVALID_USERNAME)
       throw new InvalidUsernameException("The username " + command.getUsername() + " is invalid.");
+    else if (response.getException() == com.chatapp.protocol.Exception.USER_DOES_NOT_EXIST)
+      throw new UserDoesNotExistException("The username " + command.getUsername() + " does not exist.");
   }
 
   public static void listAccounts(ListAccountsCommand command) {
@@ -123,7 +133,8 @@ public class ClientHandler {
   private static void sendMessage(Operation operation, com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
     Message message = new Message(Constants.CURRENT_VERSION, operation, exception, args);
     try {
-        Client.server_out.write(Marshaller.marshall(message));
+        Client.socket_out.write(Marshaller.marshall(message));
+        Client.socket_out.flush();
     } catch (IOException e) {
         System.err.println("ERROR: Could not send the message for " + operation + " to the server.");
         e.printStackTrace();
@@ -137,7 +148,37 @@ public class ClientHandler {
   private static Message readMessage() {
     byte[] responseBytes = null;
     try {
-      responseBytes = Client.server_in.readAllBytes();
+      /*
+      ArrayList<Byte> responseBytesList = new ArrayList<Byte>();
+      while(true) {
+        int temp = Client.socket_in.read();
+        // If the server has shut down, temp will be -1
+        if (temp == -1) {
+          System.err.println("ERROR: The server shut down.");
+          break;
+        }
+
+        byte b = (byte)temp;
+        if (b == Constants.MESSAGE_SEPARATOR)
+          break;
+        else
+          responseBytesList.add(b);
+      }
+
+      responseBytes = ByteConverter.ByteArrayListToArray(responseBytesList);
+      */
+
+      System.out.println("Listening for confirmation from server...");
+      String responseString = Client.socket_in.readUTF();
+      System.out.println(responseString);
+
+      if (responseString != null)
+        responseBytes = ByteConverter.stringToByteArray(responseString);
+      else
+        System.err.println("ERROR: The server shut down.");
+
+      responseBytes = ByteConverter.stringToByteArray(responseString);
+      
     } catch (IOException e) {
       System.err.println("ERROR: Could not read the response from the server.");
       e.printStackTrace();

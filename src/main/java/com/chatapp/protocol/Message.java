@@ -2,6 +2,8 @@ package com.chatapp.protocol;
 
 import java.util.ArrayList;
 
+import com.chatapp.utility.ByteConverter;
+
 public class Message {
     private byte version;
     private Operation operation;
@@ -26,5 +28,25 @@ public class Message {
     }
     public ArrayList<byte[]> getArguments() {
         return arguments;
+    }
+
+    @Override
+    public String toString() {
+        return "Ver=" + version + " Exc=" + exception + " " + operation + " " + ArrayListByteArraysToString(arguments);
+    }
+
+    // Utility function to convert an ArrayList of byte arrays to a string
+    private static String ArrayListByteArraysToString(ArrayList<byte[]> args) {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (byte[] arg : args) {
+            if (first) {
+                first = false;
+            } else {
+                result.append(' ');
+            }
+            result.append(ByteConverter.byteArrayToString(arg));
+        }
+        return result.toString();
     }
 }

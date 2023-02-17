@@ -1,8 +1,12 @@
 package com.chatapp.client;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -18,23 +22,51 @@ import com.chatapp.client.exceptions.InvalidUsernameException;
 import com.chatapp.client.exceptions.NotLoggedInException;
 import com.chatapp.client.exceptions.UserAlreadyExistsException;
 import com.chatapp.client.exceptions.UserDoesNotExistException;
+import com.chatapp.protocol.Constants;
 
 // Entry point of the client application. Listens for user commands from the console and executes them. This class is responsible for UI logic. It is responsible for creating a channel to the server, and then passing the channel to the handlers.
 
 public class Client {
-  static Scanner in = new Scanner(System.in);
+  static Scanner command_in = new Scanner(System.in);
   static Socket socket;
-  // input and output streams to the server
-  static DataInputStream server_in;
-  static DataOutputStream server_out;
+  static DataInputStream socket_in;
+  static OutputStream socket_out;
+
+  public static void runTEMP() {
+    Socket s = null;
+		DataInputStream din = null;
+		DataOutputStream dout = null;
+		try {
+			s = new Socket("localhost", Constants.PORT);
+			din = new DataInputStream(s.getInputStream());
+			dout=new DataOutputStream(s.getOutputStream());
+			int i = 1;
+			while(i++ < 100) {
+				dout.writeUTF("Hello Server");
+				dout.flush();
+				String str = din.readUTF();
+				System.out.println(str);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			dout.close();
+//			s.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+  }
 
   public static void main(String[] args) {
+    runTEMP();
     // listen for new user commands from the console
     while(true) {
       // read the next command from the console
       Command command;
       try {
-        command = CommandParser.parse(in.nextLine());
+        command = CommandParser.parse(command_in.nextLine());
       } catch (IllegalArgumentException e) {
         System.out.println("-> Error: " + e.getMessage());
         continue;
@@ -46,6 +78,16 @@ public class Client {
         // create a new socket to the server
         try {
           socket = new Socket(cast.getHost(), cast.getPort());
+
+          // create input and output streams to the server
+          try {
+            socket_in = new DataInputStream(socket.getInputStream());
+            // server_in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            socket_out = socket.getOutputStream();
+          } catch (IOException e) {
+            System.out.println("-> Error: Could not create input and output streams to the server.");
+            e.printStackTrace();
+          }
         } catch (IOException e) {
           System.out.println("-> Error: Could not connect to the specified server.");
           e.printStackTrace();
@@ -59,19 +101,12 @@ public class Client {
         continue;
       }
 
-      // create input and output streams to the server
-      try {
-        server_in = new DataInputStream(socket.getInputStream());
-        server_out = new DataOutputStream(socket.getOutputStream());
-      } catch (IOException e) {
-        System.out.println("-> Error: Could not create input and output streams to the server.");
-        e.printStackTrace();
-      }
-
       if (command instanceof CreateAccountCommand) {
         CreateAccountCommand cast = (CreateAccountCommand) command;
         try {
+          // -- TESTING --
           ClientHandler.createAccount(cast);
+          System.out.println("-> Account created successfully.");
         } catch (UserAlreadyExistsException e) {
           System.out.println("-> Error: User already exists.");
           e.printStackTrace();
@@ -86,6 +121,9 @@ public class Client {
           ClientHandler.deleteAccount(cast);
         } catch (InvalidUsernameException e) {
           System.out.println("-> Error: Invalid username.");
+          e.printStackTrace();
+        } catch (UserDoesNotExistException e) {
+          System.out.println("-> Error: User does not exist.");
           e.printStackTrace();
         }
       }

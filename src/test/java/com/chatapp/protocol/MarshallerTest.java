@@ -4,20 +4,13 @@ import java.lang.Exception;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MarshallerTest {
-  public static void main(String[] args) {
-    try {
-      testEscaping();
-      testMarshall();
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      System.out.println("MarshallerTest finished.");
-    }
-  }
+import org.junit.Test;
 
+public class MarshallerTest {
+
+  @Test
   // Tests only the escaping functions
-  public static void testEscaping() throws Exception {
+  public void escape_CreateAccountMessage_then_unescape_CreateAccountMessage() {
     byte version = Constants.CURRENT_VERSION;
     Operation operation = Operation.CREATE_ACCOUNT;
     com.chatapp.protocol.Exception exception = com.chatapp.protocol.Exception.NONE;
@@ -41,8 +34,9 @@ public class MarshallerTest {
     assert Arrays.equals(expectedUnmarshalledUsername, actualUnmarshalledUsername);
   }
 
+  @Test
   // Tests end-to-end
-  public static void testMarshall() throws Exception {
+  public void marshall_CreateAccountMessage_then_unmarshall_CreateAccountMessage() throws Exception {
     byte version = Constants.CURRENT_VERSION;
     Operation operation = Operation.CREATE_ACCOUNT;
     com.chatapp.protocol.Exception exception = com.chatapp.protocol.Exception.NONE;

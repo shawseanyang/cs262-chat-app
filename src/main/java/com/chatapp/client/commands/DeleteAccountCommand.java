@@ -1,5 +1,7 @@
 package com.chatapp.client.commands;
 
+import com.chatapp.client.exceptions.UserDoesNotExistException;
+
 public class DeleteAccountCommand implements Command {
   private String username;
 
@@ -7,6 +9,7 @@ public class DeleteAccountCommand implements Command {
     if (username == null || username.isEmpty()) {
       throw new IllegalArgumentException("Username cannot be null or empty");
     }
+
     this.username = username;
   }
 

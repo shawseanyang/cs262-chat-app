@@ -1,8 +1,11 @@
 package com.chatapp.server;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Map;
@@ -22,7 +25,7 @@ public class UserHandler implements Runnable {
     private User user;
     private Socket socket;
     private Message message;
-    private DataInputStream in;
+    private BufferedReader in;
     private DataOutputStream out;
     private boolean threadIsAlive;
     
@@ -35,7 +38,7 @@ public class UserHandler implements Runnable {
     public void run() {
         // Set up the input and output streams
         try {
-            in = new DataInputStream(socket.getInputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             System.err.println("ERROR: Could not set up the input and output streams.");
@@ -47,7 +50,13 @@ public class UserHandler implements Runnable {
             // Read the message
             byte[] messageBytes;
             try {
-                messageBytes = in.readAllBytes();
+                String messageString = in.readLine();
+                if (messageString == null) {
+                    System.out.println("Client disconnected.");
+                    threadIsAlive = false;
+                    return;
+                }
+                messageBytes = ByteConverter.stringToByteArray(messageString);
             } catch (IOException e) {
                 System.err.println("ERROR: Could not read the message.");
                 e.printStackTrace();
@@ -57,11 +66,17 @@ public class UserHandler implements Runnable {
             // Unmarshall the message
             message = Marshaller.unmarshall(messageBytes);
 
+            // Print the message
+            if (user != null)
+                System.out.println("Received message from " + ByteConverter.byteArrayToString(user.getUsername()) + ": " + message);
+            else
+                System.out.println("Received message: " + message);
+
             // Validate the message
             com.chatapp.protocol.Exception resultingException = validateMessage();
             if (resultingException != com.chatapp.protocol.Exception.NONE) {
                 // Send an error message
-                sendResponseMessage(resultingException);
+                writeMessage(resultingException);
                 continue;
             }
             
@@ -102,8 +117,8 @@ public class UserHandler implements Runnable {
         String username = ByteConverter.byteArrayToString(usernameBytes);
 
         // If username already exists, send an error message
-        if (!Server.clients.containsKey(username)) {
-            sendResponseMessage(com.chatapp.protocol.Exception.USER_ALREADY_EXISTS);
+        if (Server.clients.containsKey(username)) {
+            writeMessage(com.chatapp.protocol.Exception.USER_ALREADY_EXISTS);
             return;
         }
         
@@ -111,35 +126,26 @@ public class UserHandler implements Runnable {
         Server.clients.put(username, new User(usernameBytes));
 
         // Send a success message
-        sendResponseMessage(com.chatapp.protocol.Exception.NONE);
+        writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
     private void deleteAccountHandler(byte[] usernameBytes) {
         String username = ByteConverter.byteArrayToString(usernameBytes);
 
-        // Check if user exists
+        // Check if user does not exist
         if (!Server.clients.containsKey(username)) {
-            sendResponseMessage(com.chatapp.protocol.Exception.USER_DOES_NOT_EXIST);
+            writeMessage(com.chatapp.protocol.Exception.USER_DOES_NOT_EXIST);
             return;
         }
 
         User user = Server.clients.get(username);
-
-        // Close the socket
-        try {
-            Socket socket = user.getSocket();
-            socket.close();
-        } catch (IOException e) {
-            System.err.println("ERROR: Could not close the socket.");
-            e.printStackTrace();
-        }
 
         // Delete the user
         user.clear();
         Server.clients.remove(username);
 
         // Send a success message
-        sendResponseMessage(com.chatapp.protocol.Exception.NONE);
+        writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
     private void loginHandler(byte[] usernameBytes) {
@@ -147,7 +153,7 @@ public class UserHandler implements Runnable {
 
         // If username does not exist, send an error message
         if (!Server.clients.containsKey(username)) {
-            sendResponseMessage(com.chatapp.protocol.Exception.USER_DOES_NOT_EXIST);
+            writeMessage(com.chatapp.protocol.Exception.USER_DOES_NOT_EXIST);
             return;
         }
 
@@ -169,13 +175,13 @@ public class UserHandler implements Runnable {
         user.setSocket(socket);
 
         // Send a success message
-        sendResponseMessage(com.chatapp.protocol.Exception.NONE);
+        writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
     private void logoutHandler() {
         // Check if user is logged in
         if (!isLoggedIn()) {
-            sendResponseMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
+            writeMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
             return;
         }
 
@@ -195,13 +201,13 @@ public class UserHandler implements Runnable {
         this.user = null;
 
         // Send a success message
-        sendResponseMessage(com.chatapp.protocol.Exception.NONE);
+        writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
     private void sendMessageHandler(byte[] recipient, byte[] message) {
         // Check if user is logged in
         if (!isLoggedIn()) {
-            sendResponseMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
+            writeMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
             return;
         }
 
@@ -211,13 +217,13 @@ public class UserHandler implements Runnable {
         recipientUser.addMessage(user, message);
 
         // Send a success message
-        sendResponseMessage(com.chatapp.protocol.Exception.NONE);
+        writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
     private void listAccountsHandler(byte[] regex) {
         // Check if user is logged in
         if (!isLoggedIn()) {
-            sendResponseMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
+            writeMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
             return;
         }
 
@@ -239,7 +245,7 @@ public class UserHandler implements Runnable {
         }
 
         // Send a success message
-        sendResponseMessage(com.chatapp.protocol.Exception.NONE, matchedUsers);
+        writeMessage(com.chatapp.protocol.Exception.NONE, matchedUsers);
     }
 
     /* Recipient-related functions */
@@ -247,7 +253,7 @@ public class UserHandler implements Runnable {
     private void distributeMessageHandler() {
         // Check if user is logged in
         if (!isLoggedIn()) {
-            sendResponseMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
+            writeMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
             return;
         }
 
@@ -260,7 +266,7 @@ public class UserHandler implements Runnable {
             args.add(message.getMessage());
 
             // Send the message
-            sendResponseMessage(com.chatapp.protocol.Exception.NONE, args);
+            writeMessage(com.chatapp.protocol.Exception.NONE, args);
 
             // Remove the message
             user.removeMessage();
@@ -299,10 +305,17 @@ public class UserHandler implements Runnable {
     }
 
     // Utility functions for sending response messages to the client
-    private void sendResponseMessage(com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
+    private void writeMessage(com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
         Message responseMessage = new Message(Constants.CURRENT_VERSION, message.getOperation(), exception, args);
         try {
-            out.write(Marshaller.marshall(responseMessage));
+            out.writeUTF("MESSAGE SENT");
+            // out.write(Marshaller.marshall(responseMessage));
+            
+            // Print sent message to console
+            if (user != null)
+                System.out.println("Sent response message to " + ByteConverter.byteArrayToString(user.getUsername()) + ": " + responseMessage);
+            else
+                System.out.println("Sent response message: " + responseMessage);
         } catch (IOException e) {
             if (exception == com.chatapp.protocol.Exception.NONE)
                 System.err.println("ERROR: Could not send the success message.");
@@ -318,8 +331,8 @@ public class UserHandler implements Runnable {
         }
     }
 
-    private void sendResponseMessage(com.chatapp.protocol.Exception exception) {
-        sendResponseMessage(exception, new ArrayList<byte[]>());
+    private void writeMessage(com.chatapp.protocol.Exception exception) {
+        writeMessage(exception, new ArrayList<byte[]>());
     }
 
     // Utility function for determining if a user is logged in
