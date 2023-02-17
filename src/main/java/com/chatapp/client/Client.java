@@ -22,6 +22,7 @@ import com.chatapp.client.exceptions.InvalidUsernameException;
 import com.chatapp.client.exceptions.NotLoggedInException;
 import com.chatapp.client.exceptions.UserAlreadyExistsException;
 import com.chatapp.client.exceptions.UserDoesNotExistException;
+import com.chatapp.protocol.Constants;
 
 // Entry point of the client application. Listens for user commands from the console and executes them. This class is responsible for UI logic. It is responsible for creating a channel to the server, and then passing the channel to the handlers.
 
@@ -48,7 +49,7 @@ public class Client {
         ConnectCommand cast = (ConnectCommand) command;
         // create a new socket to the server
         try {
-          socket = new Socket(cast.getHost(), cast.getPort());
+          socket = new Socket(cast.getHost(), Constants.PORT);
 
           // create input and output streams to the server
           try {
