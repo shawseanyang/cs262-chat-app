@@ -1,8 +1,6 @@
 package com.chatapp.server;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -26,7 +24,7 @@ public class UserHandler implements Runnable {
     private Socket socket;
     private Message message;
     private BufferedReader in;
-    private DataOutputStream out;
+    private OutputStream out;
     private boolean threadIsAlive;
     
     public UserHandler(Socket socket) {
@@ -39,7 +37,7 @@ public class UserHandler implements Runnable {
         // Set up the input and output streams
         try {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new DataOutputStream(socket.getOutputStream());
+            out = socket.getOutputStream();
         } catch (IOException e) {
             System.err.println("ERROR: Could not set up the input and output streams.");
             e.printStackTrace();
@@ -308,14 +306,14 @@ public class UserHandler implements Runnable {
     private void writeMessage(com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
         Message responseMessage = new Message(Constants.CURRENT_VERSION, message.getOperation(), exception, args);
         try {
-            out.writeUTF("MESSAGE SENT");
-            // out.write(Marshaller.marshall(responseMessage));
+            out.write(Marshaller.marshall(responseMessage));
             
-            // Print sent message to console
+            // Log messages sent
             if (user != null)
                 System.out.println("Sent response message to " + ByteConverter.byteArrayToString(user.getUsername()) + ": " + responseMessage);
             else
                 System.out.println("Sent response message: " + responseMessage);
+
         } catch (IOException e) {
             if (exception == com.chatapp.protocol.Exception.NONE)
                 System.err.println("ERROR: Could not send the success message.");

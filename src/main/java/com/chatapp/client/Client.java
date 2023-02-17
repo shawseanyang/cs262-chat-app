@@ -22,7 +22,6 @@ import com.chatapp.client.exceptions.InvalidUsernameException;
 import com.chatapp.client.exceptions.NotLoggedInException;
 import com.chatapp.client.exceptions.UserAlreadyExistsException;
 import com.chatapp.client.exceptions.UserDoesNotExistException;
-import com.chatapp.protocol.Constants;
 
 // Entry point of the client application. Listens for user commands from the console and executes them. This class is responsible for UI logic. It is responsible for creating a channel to the server, and then passing the channel to the handlers.
 
@@ -32,35 +31,7 @@ public class Client {
   static DataInputStream socket_in;
   static OutputStream socket_out;
 
-  public static void runTEMP() {
-    Socket s = null;
-		DataInputStream din = null;
-		DataOutputStream dout = null;
-		try {
-			s = new Socket("localhost", Constants.PORT);
-			din = new DataInputStream(s.getInputStream());
-			dout=new DataOutputStream(s.getOutputStream());
-			int i = 1;
-			while(i++ < 100) {
-				dout.writeUTF("Hello Server");
-				dout.flush();
-				String str = din.readUTF();
-				System.out.println(str);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			dout.close();
-//			s.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-  }
-
   public static void main(String[] args) {
-    runTEMP();
     // listen for new user commands from the console
     while(true) {
       // read the next command from the console
@@ -68,7 +39,7 @@ public class Client {
       try {
         command = CommandParser.parse(command_in.nextLine());
       } catch (IllegalArgumentException e) {
-        System.out.println("-> Error: " + e.getMessage());
+        System.err.println("-> Error: " + e.getMessage());
         continue;
       }
 
@@ -85,11 +56,11 @@ public class Client {
             // server_in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             socket_out = socket.getOutputStream();
           } catch (IOException e) {
-            System.out.println("-> Error: Could not create input and output streams to the server.");
+            System.err.println("-> Could not create input and output streams to the server.");
             e.printStackTrace();
           }
         } catch (IOException e) {
-          System.out.println("-> Error: Could not connect to the specified server.");
+          System.err.println("-> Could not connect to the specified server.");
           e.printStackTrace();
         }
         continue;
@@ -97,21 +68,19 @@ public class Client {
       
       // if there is no socket, then the user must connect first
       if (socket == null) {
-        System.out.println("-> Error: You must connect to a server first.");
+        System.err.println("-> You must connect to a server first.");
         continue;
       }
 
       if (command instanceof CreateAccountCommand) {
         CreateAccountCommand cast = (CreateAccountCommand) command;
         try {
-          // -- TESTING --
           ClientHandler.createAccount(cast);
-          System.out.println("-> Account created successfully.");
         } catch (UserAlreadyExistsException e) {
-          System.out.println("-> Error: User already exists.");
+          System.err.println("-> User already exists.");
           e.printStackTrace();
         } catch (InvalidUsernameException e) {
-          System.out.println("-> Error: Invalid username.");
+          System.err.println("-> Invalid username.");
           e.printStackTrace();
         }
       }
@@ -120,10 +89,10 @@ public class Client {
         try {
           ClientHandler.deleteAccount(cast);
         } catch (InvalidUsernameException e) {
-          System.out.println("-> Error: Invalid username.");
+          System.err.println("-> Invalid username.");
           e.printStackTrace();
         } catch (UserDoesNotExistException e) {
-          System.out.println("-> Error: User does not exist.");
+          System.err.println("-> User does not exist.");
           e.printStackTrace();
         }
       }
@@ -136,7 +105,7 @@ public class Client {
         try {
           ClientHandler.logIn(cast);
         } catch (UserDoesNotExistException e) {
-          System.out.println("-> Error: User does not exist.");
+          System.err.println("-> User does not exist.");
           e.printStackTrace();
         }
       }
@@ -145,7 +114,7 @@ public class Client {
         try {
           ClientHandler.logOut(cast);
         } catch (NotLoggedInException e) {
-          System.out.println("-> Error: You are not logged in.");
+          System.err.println("-> You are not logged in.");
           e.printStackTrace();
         }
       }
@@ -154,10 +123,10 @@ public class Client {
         try {
           ClientHandler.sendMessage(cast);
         } catch (UserDoesNotExistException e) {
-          System.out.println("-> Error: User does not exist.");
+          System.err.println("-> User does not exist.");
           e.printStackTrace();
         } catch (NotLoggedInException e) {
-          System.out.println("-> Error: You are not logged in.");
+          System.err.println("-> You are not logged in.");
           e.printStackTrace();
         }
       }

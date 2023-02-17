@@ -11,28 +11,10 @@ import java.util.HashMap;
 
 public class Server {
 
-    public static void runTHIS() {
-        try {
-            ServerSocket ss = new ServerSocket(Constants.PORT);
-            Socket s = ss.accept();// establishes connection
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream out = new DataOutputStream(s.getOutputStream());
-            while (true) {
-              String str = (String) dis.readUTF();
-              out.writeUTF("hello from server");
-              System.out.println("message= " + str);
-            }
-          } catch (Exception e) {
-            System.out.println(e);
-          }
-    }
-
     // Inactive users should have a socket value of null
     // <Username, User>
     static HashMap<String, User> clients = new HashMap<String, User>();
     public static void main(String[] args) throws IOException {
-        runTHIS();
-
         System.out.println("Server is running...");
 
         // Create a new server socket
