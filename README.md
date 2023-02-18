@@ -1,12 +1,12 @@
 # cs262-chat-app
 
-Run the server using **./server.sh**\
-Run the client using **./client.sh**
+Run the server using `./server.sh`\
+Run the client using `./client.sh`
 
 > The server must run before the client can perform 'connect'
 
 ## Client commands
-- `connect \<ip\>`
+- connect \<ip\>
 - create_account \<account_name\>
 - list_accounts \<wildcard_query\>
 - login \<account_name\>
