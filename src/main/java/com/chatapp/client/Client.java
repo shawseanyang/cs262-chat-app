@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import com.chatapp.client.commands.Command;
@@ -28,13 +29,32 @@ public class Client {
   static DataInputStream socket_in;
   static DataOutputStream socket_out;
 
+  static final HashSet<String> quitCommands = new HashSet<String>() {{
+    add("e");
+    add("exit");
+    add("q");
+    add("quit");
+  }};
+
   public static void main(String[] args) {
     // listen for new user commands from the console
     while(true) {
       // read the next command from the console
       Command command;
       try {
-        command = CommandParser.parse(command_in.nextLine());
+        String commandLine = command_in.nextLine();
+
+        // Skip if the command is empty
+        if (commandLine.trim().isEmpty()) {
+          continue;
+        }
+
+        // Check for exit command
+        if (quitCommands.contains(commandLine.trim().toLowerCase())) {
+          return;
+        }
+
+        command = CommandParser.parse(commandLine);
       } catch (IllegalArgumentException e) {
         System.err.println("-> Error: " + e.getMessage());
         continue;
