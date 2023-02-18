@@ -1,7 +1,27 @@
 # cs262-chat-app
 
-To run the server,
-mvn compile exec:java -Dexec.mainClass="com.chatapp.server.Server"
+Run the server using ./server.sh
+Run the client using ./client.sh
 
-To run the client,
-mvn compile exec:java -Dexec.mainClass="com.chatapp.client.Client"
+> The server must run before the client can perform 'connect'
+
+## Client commands
+- connect <ip>
+- create_account <account_name>
+- list_accounts <wildcard_query>
+- login <account_name>
+- logout
+- delete_account <account_name>
+- send <recipient> <message>
+
+## Sample usage
+... cs262-chat-app % ./client.sh
+connect 12.345.67.89
+create_account andy
+create_account bessie
+list_accounts \*e\*i\*
+login andy
+send bessie Here's to a (hopefully) functioning message service!
+logout
+login bessie
+send andy Wow I'm surprised that worked!

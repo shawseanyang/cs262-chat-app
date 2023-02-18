@@ -274,6 +274,7 @@ public class IntegrationTests {
         try {
             fileIn.close();
             fileOut.close();
+            fileErr.close();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
