@@ -222,6 +222,8 @@ public class IntegrationTests {
         runTest(nameofCurrentMethod);
     }
 
+    // TODO: Add all error scenarios
+
     /* Abstraction of test logic */
 
     public void runTest(String testName) {
