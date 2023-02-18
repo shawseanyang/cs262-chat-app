@@ -46,20 +46,4 @@ public class ByteConverter {
       return result;
   }
 
-  public static byte[] ByteArrayListToArray(ArrayList<Byte> list) {
-      byte[] result = new byte[list.size()];
-      for (int i = 0; i < list.size(); i++) {
-          result[i] = list.get(i);
-      }
-      return result;
-  }
-
-  public static ArrayList<Byte> ByteArrayToArrayList(byte[] array) {
-      ArrayList<Byte> result = new ArrayList<Byte>();
-      for (byte b : array) {
-          result.add(b);
-      }
-      return result;
-  }
-
 }
