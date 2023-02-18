@@ -9,6 +9,7 @@ import com.chatapp.client.commands.ConnectCommand;
 import com.chatapp.client.commands.CreateAccountCommand;
 import com.chatapp.client.commands.DeleteAccountCommand;
 import com.chatapp.client.commands.ListAccountsCommand;
+import com.chatapp.client.commands.LogInCommand;
 import com.chatapp.client.commands.LogOutCommand;
 import com.chatapp.client.commands.SendMessageCommand;
 
@@ -48,7 +49,10 @@ public class CommandParserTest {
   public void parse_logInCommand_createsLogInCommand() {
     
     try {
-      CommandParser.parse("login alan_turing");
+      Command command = CommandParser.parse("login alan_turing");
+      assertTrue(command instanceof LogInCommand);
+      LogInCommand logInCommand = (LogInCommand) command;
+      assertTrue(logInCommand.getUsername().equals("alan_turing"));
     } catch (Exception e) {
       assertTrue(false);
     }
@@ -70,6 +74,8 @@ public class CommandParserTest {
     try {
       Command command = CommandParser.parse("create_account alan_turing");
       assertTrue(command instanceof CreateAccountCommand);
+      CreateAccountCommand createAccountCommand = (CreateAccountCommand) command;
+      assertTrue(createAccountCommand.getUsername().equals("alan_turing"));
     } catch (Exception e) {
       assertTrue(false);
     }
@@ -91,6 +97,8 @@ public class CommandParserTest {
     try {
       Command command = CommandParser.parse("delete_account alan_turing");
       assertTrue(command instanceof DeleteAccountCommand);
+      DeleteAccountCommand deleteAccountCommand = (DeleteAccountCommand) command;
+      assertTrue(deleteAccountCommand.getUsername().equals("alan_turing"));
     } catch (Exception e) {
       assertTrue(false);
     }
@@ -112,6 +120,8 @@ public class CommandParserTest {
     try {
       Command command = CommandParser.parse("list_accounts alan_*");
       assertTrue(command instanceof ListAccountsCommand);
+      ListAccountsCommand listAccountsCommand = (ListAccountsCommand) command;
+      assertTrue(listAccountsCommand.getPattern().equals("alan_*"));
     } catch (Exception e) {
       assertTrue(false);
     }
@@ -131,8 +141,11 @@ public class CommandParserTest {
   public void parse_sendMessageCommand_createsSendMessageCommand() {
     
     try {
-      Command command = CommandParser.parse("send alan_turing hello");
+      Command command = CommandParser.parse("send alan_turing hello world");
       assertTrue(command instanceof SendMessageCommand);
+      SendMessageCommand sendMessageCommand = (SendMessageCommand) command;
+      assertTrue(sendMessageCommand.getRecipient().equals("alan_turing"));
+      assertTrue(sendMessageCommand.getMessage().equals("hello world"));
     } catch (Exception e) {
       assertTrue(false);
     }
@@ -162,8 +175,10 @@ public class CommandParserTest {
   public void parse_connectCommand_createsConnectCommand() {
     
     try {
-      Command command = CommandParser.parse("connect localhost 8080");
+      Command command = CommandParser.parse("connect localhost");
       assertTrue(command instanceof ConnectCommand);
+      ConnectCommand connectCommand = (ConnectCommand) command;
+      assertTrue(connectCommand.getHost().equals("localhost"));
     } catch (Exception e) {
       assertTrue(false);
     }

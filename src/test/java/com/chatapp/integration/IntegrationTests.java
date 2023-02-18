@@ -156,6 +156,7 @@ public class IntegrationTests {
 
     /* Wire diagram flow */
 
+    // Ensure functionality of DeleteAccount
     @Test
     public void createAccount_then_DeleteAccount() {
         final String nameofCurrentMethod = new Throwable()
@@ -165,6 +166,23 @@ public class IntegrationTests {
     }
 
     @Test
+    public void createAccount_then_DeleteAccount_then_CreateAccount() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
+
+    @Test
+    public void createAccount_then_ListAccounts_then_DeleteAccount_then_ListAccounts() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
+
+    // Ensure functionality of LogIn
+    @Test
     public void createAccount_then_LogIn() {
         final String nameofCurrentMethod = new Throwable()
                                       .getStackTrace()[0]
@@ -173,13 +191,22 @@ public class IntegrationTests {
     }
 
     @Test
-    public void createAccount_then_LogIn_then_LogOut() {
+    public void createAccounts_then_LogIn_then_LogIn_then_SendMessage() {
         final String nameofCurrentMethod = new Throwable()
                                       .getStackTrace()[0]
                                       .getMethodName();
         runTest(nameofCurrentMethod);
     }
 
+    // Ensure functionality of LogOut
+    @Test
+    public void createAccount_then_LogIn_then_LogOut() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
+    
     @Test
     public void createAccount_then_LogIn_then_SendMessage_then_LogOut() {
         final String nameofCurrentMethod = new Throwable()
@@ -197,9 +224,25 @@ public class IntegrationTests {
                                       .getMethodName();
         runTest(nameofCurrentMethod);
     }
+
+    @Test
+    public void createAccount_then_DeleteAccount_then_DeleteAccount_then_UserDoesNotExist() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
     
     @Test
     public void logIn_then_UserDoesNotExist() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
+
+    @Test
+    public void createAccount_then_DeleteAccount_then_LogIn_then_UserDoesNotExist() {
         final String nameofCurrentMethod = new Throwable()
                                       .getStackTrace()[0]
                                       .getMethodName();
@@ -215,6 +258,22 @@ public class IntegrationTests {
     }
 
     @Test
+    public void createAccount_then_logOut_then_UserNotLoggedIn() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
+
+    @Test
+    public void createAccount_then_logIn_then_logOut_then_logOut_then_UserNotLoggedIn() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
+
+    @Test
     public void sendMessage_then_UserNotLoggedIn() {
         final String nameofCurrentMethod = new Throwable()
                                       .getStackTrace()[0]
@@ -222,7 +281,13 @@ public class IntegrationTests {
         runTest(nameofCurrentMethod);
     }
 
-    // TODO: Add all error scenarios
+    @Test
+    public void createAccount_then_SendMessage_then_UserNotLoggedIn() {
+        final String nameofCurrentMethod = new Throwable()
+                                      .getStackTrace()[0]
+                                      .getMethodName();
+        runTest(nameofCurrentMethod);
+    }
 
     /* Abstraction of test logic */
 
