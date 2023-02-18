@@ -21,6 +21,10 @@ public class ByteConverter {
   }
 
   public static byte[][] splitByteArray(byte[] array, byte separator) {
+      if (array.length == 0) {
+        return new byte[0][0];
+      }
+
       int separatorCount = 0;
       for (byte b : array) {
           if (b == separator) {

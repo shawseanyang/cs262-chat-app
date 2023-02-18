@@ -34,7 +34,15 @@ public class CommandParser {
         case "delete_account":
           return new DeleteAccountCommand(args[0]);
         case "send":
-          return new SendMessageCommand(args[0], args[1]);
+          // Recombine the message
+          StringBuilder message = new StringBuilder();
+          for (int i = 1; i < args.length; i++) {
+            message.append(args[i]);
+            if (i != args.length - 1) {
+              message.append(" ");
+            }
+          }
+          return new SendMessageCommand(args[0], message.toString());
         default:
           throw new IllegalArgumentException("Unknown command: " + commandName);
       }

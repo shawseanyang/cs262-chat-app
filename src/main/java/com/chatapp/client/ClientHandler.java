@@ -121,11 +121,39 @@ public class ClientHandler {
       throw new NotLoggedInException("You are not logged in.");
   }
 
+  public static boolean distributeMessage() throws NotLoggedInException {
+    // Create a message to send to the server
+    sendMessage(Operation.DISTRIBUTE_MESSAGE, com.chatapp.protocol.Exception.NONE);
+
+    // Wait for a response from the server
+    Message response = readMessage();
+
+    // Check the response for errors
+    if (response.getException() == com.chatapp.protocol.Exception.NOT_LOGGED_IN) {
+      throw new NotLoggedInException("You are not logged in.");
+    }
+    else if (response.getException() != com.chatapp.protocol.Exception.NONE) {
+      throw new RuntimeException("An unknown error occurred: " + response.getException());
+    }
+
+    // Check if there are any messages
+    if (response.getArguments().isEmpty()) {
+      return false;
+    }
+
+    // Print the message
+    String sender = ByteConverter.byteArrayToString(response.getArguments().get(0));
+    String message = ByteConverter.byteArrayToString(response.getArguments().get(1));
+    System.out.println(sender + ": " + message);
+
+    return true;
+  }
+
   // Utility functions for communicating with the server
   private static void sendMessage(Operation operation, com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
     Message message = new Message(Constants.CURRENT_VERSION, operation, exception, args);
     try {
-        Client.socket_out.write(Marshaller.marshall(message));
+        Client.socket_out.writeUTF(ByteConverter.byteArrayToString(Marshaller.marshall(message)));
     } catch (IOException e) {
         System.err.println("-> Could not send the message for " + operation + " to the server.");
         e.printStackTrace();
@@ -137,25 +165,20 @@ public class ClientHandler {
   }
 
   private static Message readMessage() {
-    byte[] responseBytes = null;
+    byte[] messageBytes = null;
     try {
-      String responseString = Client.socket_in.readUTF();
+      String messageString = Client.socket_in.readUTF();
 
-      if (responseString == null) {
-        throw new RuntimeException("The server shut down.");
-      }
-
-      responseBytes = ByteConverter.stringToByteArray(responseString);
-      
+      messageBytes = ByteConverter.stringToByteArray(messageString);      
     } catch (IOException e) {
       System.err.println("ERROR: Could not read the response from the server.");
       e.printStackTrace();
     }
 
     // Unmarshall the response
-    Message response = Marshaller.unmarshall(responseBytes);
+    Message message = Marshaller.unmarshall(messageBytes);
 
-    return response;
+    return message;
   }
 
   // Utility functions for parsing arguments

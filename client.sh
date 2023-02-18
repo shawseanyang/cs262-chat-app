@@ -1,0 +1,1 @@
+/usr/bin/env /Library/Java/JavaVirtualMachines/jdk-14.0.2.jdk/Contents/Home/bin/java -XX:+ShowCodeDetailsInExceptionMessages -cp ./target/classes com.chatapp.client.Client

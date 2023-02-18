@@ -1,9 +1,9 @@
 package com.chatapp.server;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,8 +23,8 @@ public class UserHandler implements Runnable {
     private User user;
     private Socket socket;
     private Message message;
-    private BufferedReader in;
-    private OutputStream out;
+    private DataInputStream in;
+    private DataOutputStream out;
     private boolean threadIsAlive;
     
     public UserHandler(Socket socket) {
@@ -36,8 +36,8 @@ public class UserHandler implements Runnable {
     public void run() {
         // Set up the input and output streams
         try {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = socket.getOutputStream();
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             System.err.println("ERROR: Could not set up the input and output streams.");
             e.printStackTrace();
@@ -48,13 +48,22 @@ public class UserHandler implements Runnable {
             // Read the message
             byte[] messageBytes;
             try {
-                String messageString = in.readLine();
+                String messageString = in.readUTF();
                 if (messageString == null) {
-                    System.out.println("Client disconnected.");
+                    System.out.println("Client from port " + socket.getPort() + " disconnected.");
                     threadIsAlive = false;
                     return;
                 }
                 messageBytes = ByteConverter.stringToByteArray(messageString);
+                
+                if (messageBytes.length <= 1) {
+                    System.err.println("ERROR: Message " + ByteConverter.byteArrayToString(messageBytes) + " is too short.");
+                    continue;
+                }
+            } catch (EOFException e) {
+                System.out.println("Client from port " + socket.getPort() + " disconnected.");
+                threadIsAlive = false;
+                return;
             } catch (IOException e) {
                 System.err.println("ERROR: Could not read the message.");
                 e.printStackTrace();
@@ -202,16 +211,23 @@ public class UserHandler implements Runnable {
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
-    private void sendMessageHandler(byte[] recipient, byte[] message) {
+    private void sendMessageHandler(byte[] recipientBytes, byte[] message) {
         // Check if user is logged in
         if (!isLoggedIn()) {
             writeMessage(com.chatapp.protocol.Exception.NOT_LOGGED_IN);
             return;
         }
 
-        User recipientUser = new User(recipient);
+        String recipient = ByteConverter.byteArrayToString(recipientBytes);
+
+        // Check if recipient exists
+        if (!Server.clients.containsKey(recipient)) {
+            writeMessage(com.chatapp.protocol.Exception.USER_DOES_NOT_EXIST);
+            return;
+        }
 
         // Add message to recipient's queue
+        User recipientUser = Server.clients.get(recipient);
         recipientUser.addMessage(user, message);
 
         // Send a success message
@@ -255,8 +271,8 @@ public class UserHandler implements Runnable {
             return;
         }
 
-        // Get the messages
-        while (user.hasMessages()) {
+        // If the user has a message, send it
+        if (user.hasMessages()) {
             ArrayList<byte[]> args = new ArrayList<byte[]>();
             
             User.QueuedMessage message = user.peekMessage();
@@ -268,6 +284,10 @@ public class UserHandler implements Runnable {
 
             // Remove the message
             user.removeMessage();
+        }
+        // Otherwise, send an empty message
+        else {
+            writeMessage(com.chatapp.protocol.Exception.NONE);
         }
     }
 
@@ -304,9 +324,9 @@ public class UserHandler implements Runnable {
 
     // Utility functions for sending response messages to the client
     private void writeMessage(com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
-        Message responseMessage = new Message(Constants.CURRENT_VERSION, message.getOperation(), exception, args);
+        Message responseMessage = new Message(Constants.CURRENT_VERSION, message.getOperation().toResponse(), exception, args);
         try {
-            out.write(Marshaller.marshall(responseMessage));
+            out.writeUTF(ByteConverter.byteArrayToString(Marshaller.marshall(responseMessage)));
             
             // Log messages sent
             if (user != null)

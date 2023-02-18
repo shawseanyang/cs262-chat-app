@@ -1,7 +1,5 @@
 package com.chatapp.client.commands;
 
-import com.chatapp.client.exceptions.UserDoesNotExistException;
-
 public class DeleteAccountCommand implements Command {
   private String username;
 

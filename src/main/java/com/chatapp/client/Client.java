@@ -1,12 +1,8 @@
 package com.chatapp.client;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -30,7 +26,7 @@ public class Client {
   static Scanner command_in = new Scanner(System.in);
   static Socket socket;
   static DataInputStream socket_in;
-  static OutputStream socket_out;
+  static DataOutputStream socket_out;
 
   public static void main(String[] args) {
     // listen for new user commands from the console
@@ -46,6 +42,15 @@ public class Client {
 
       // when its a connect command, create a new channel to the server
       if (command instanceof ConnectCommand) {
+        // if a socket already exists, try to close it
+        if (socket != null) {
+          try {
+            socket.close();
+          } catch (IOException e) {
+            System.err.println("ERROR: Could not close the socket.");
+            e.printStackTrace();
+          }
+        }
         ConnectCommand cast = (ConnectCommand) command;
         // create a new socket to the server
         try {
@@ -54,8 +59,7 @@ public class Client {
           // create input and output streams to the server
           try {
             socket_in = new DataInputStream(socket.getInputStream());
-            // server_in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            socket_out = socket.getOutputStream();
+            socket_out = new DataOutputStream(socket.getOutputStream());
           } catch (IOException e) {
             System.err.println("-> Could not create input and output streams to the server.");
             e.printStackTrace();
@@ -73,6 +77,7 @@ public class Client {
         continue;
       }
 
+      // Run commands
       if (command instanceof CreateAccountCommand) {
         CreateAccountCommand cast = (CreateAccountCommand) command;
         try {
@@ -130,6 +135,15 @@ public class Client {
           System.err.println("-> You are not logged in.");
           e.printStackTrace();
         }
+      }
+
+      // Check for messages from the server
+      try {
+        while(ClientHandler.distributeMessage() == true) {
+          // repeat until there are no more messages
+        }
+      } catch (NotLoggedInException e) {
+        // Do nothing because this is a silent process
       }
     }
   }

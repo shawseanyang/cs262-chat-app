@@ -28,6 +28,7 @@ public class MessageValidator {
     // Check if correct number of arguments
     int argCount = ARG_COUNT.get(operation);
     if (message.getArguments().size() != argCount) {
+      System.err.println("Expected " + argCount + " arguments, but got " + message.getArguments().size() + " arguments");
       return com.chatapp.protocol.Exception.INVALID_ARGUMENTS;
     }
 

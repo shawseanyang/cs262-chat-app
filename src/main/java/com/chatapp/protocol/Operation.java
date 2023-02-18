@@ -53,6 +53,27 @@ public enum Operation {
     }
   }
 
+  public Operation toResponse() {
+    switch (this) {
+      case CREATE_ACCOUNT:
+        return CREATE_ACCOUNT_RESPONSE;
+      case LIST_ACCOUNTS:
+        return LIST_ACCOUNTS_RESPONSE;
+      case LOG_IN:
+        return LOG_IN_RESPONSE;
+      case LOG_OUT:
+        return LOG_OUT_RESPONSE;
+      case SEND_MESSAGE:
+        return SEND_MESSAGE_RESPONSE;
+      case DISTRIBUTE_MESSAGE:
+        return DISTRIBUTE_MESSAGE_RESPONSE;
+      case DELETE_ACCOUNT:
+        return DELETE_ACCOUNT_RESPONSE;
+      default:
+        return null;
+    }
+  }
+
   public byte toByte() {
     switch (this) {
       case CREATE_ACCOUNT:

@@ -36,6 +36,7 @@ public class Server {
                 e.printStackTrace();
                 continue;
             }
+            System.out.println("New client connected from port " + s.getPort());
 
             // Create a new thread to handle the client
             new Thread(new UserHandler(s)).start();
