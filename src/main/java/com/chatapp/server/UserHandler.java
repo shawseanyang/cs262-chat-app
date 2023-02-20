@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -49,6 +50,7 @@ public class UserHandler implements Runnable {
             byte[] messageBytes;
             try {
                 String messageString = in.readUTF();
+                
                 if (messageString == null) {
                     System.out.println("[Server] Client from port " + socket.getPort() + " disconnected.");
                     threadIsAlive = false;
@@ -60,7 +62,7 @@ public class UserHandler implements Runnable {
                     System.err.println("[Server] ERROR: Message " + ByteConverter.byteArrayToString(messageBytes) + " is too short.");
                     continue;
                 }
-            } catch (EOFException e) {
+            } catch (EOFException | SocketException e) {
                 System.out.println("[Server] Client from port " + socket.getPort() + " disconnected.");
                 threadIsAlive = false;
                 return;
@@ -74,7 +76,7 @@ public class UserHandler implements Runnable {
             message = Marshaller.unmarshall(messageBytes);
 
             // Print the message
-            if (user != null)
+            if (isLoggedIn())
                 System.out.println("[Server] Received message from " + ByteConverter.byteArrayToString(user.getUsername()) + ": " + message);
             else
                 System.out.println("[Server] Received message: " + message);
@@ -144,6 +146,9 @@ public class UserHandler implements Runnable {
         user.clear();
         Server.clients.remove(username);
 
+        // Disassociate the socket from the user
+        user.setSocket(null);
+
         // Send a success message
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
@@ -153,17 +158,6 @@ public class UserHandler implements Runnable {
 
         // Set the user variable
         this.user = Server.clients.get(username);
-
-        // If client has already logged in, close the old socket
-        Socket oldSocket = user.getSocket();
-        if (oldSocket != null && oldSocket != socket) {
-            try {
-                oldSocket.close();
-            } catch (IOException e) {
-                System.err.println("[Server] ERROR: Could not close the socket.");
-                e.printStackTrace();
-            }
-        }
         
         // Update the socket
         user.setSocket(socket);
@@ -328,7 +322,7 @@ public class UserHandler implements Runnable {
             out.writeUTF(ByteConverter.byteArrayToString(Marshaller.marshall(responseMessage)));
             
             // Log messages sent
-            if (user != null)
+            if (isLoggedIn())
                 System.out.println("[Server] Sent response message to " + ByteConverter.byteArrayToString(user.getUsername()) + ": " + responseMessage);
             else
                 System.out.println("[Server] Sent response message: " + responseMessage);
@@ -356,7 +350,7 @@ public class UserHandler implements Runnable {
 
     // Utility function for determining if a user is logged in
     private boolean isLoggedIn() {
-        return user != null && user.getSocket() != null;
+        return user != null && user.getSocket() != null && user.getSocket() == socket && user.getUsername() != null;
     }
 
 }
