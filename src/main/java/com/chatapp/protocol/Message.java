@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import com.chatapp.utility.ByteConverter;
 
+/*
+ * This class is used to represent a message sent between the client and server.
+ */
 public class Message {
     private byte version;
     private Operation operation;
@@ -35,7 +38,11 @@ public class Message {
         return "Ver=" + version + " Exc=" + exception + " " + operation + " " + ArrayListByteArraysToString(arguments);
     }
 
-    // Utility function to convert an ArrayList of byte arrays to a string
+    /* 
+     * Utility function to convert an ArrayList of byte arrays to a string
+     * @param args the ArrayList of byte arrays to convert
+     * @return the string representation of the ArrayList of byte arrays
+    */
     private static String ArrayListByteArraysToString(ArrayList<byte[]> args) {
         StringBuilder result = new StringBuilder();
         boolean first = true;

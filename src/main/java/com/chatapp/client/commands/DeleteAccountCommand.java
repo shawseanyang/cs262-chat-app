@@ -1,5 +1,8 @@
 package com.chatapp.client.commands;
 
+/*
+ * This command is used to create a new account.
+ */
 public class DeleteAccountCommand implements Command {
   private String username;
 

@@ -4,8 +4,14 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/*
+ * This class is used to represent a user.
+ */
 public class User {
 
+    /*
+     * This class is used to represent a queued message.
+     */
     static class QueuedMessage {
         private User sender;
         private byte[] message;
@@ -64,6 +70,10 @@ public class User {
         return message;
     }
 
+    /*
+     * This method is used to clear the user's messages and username.
+     * This method should be called when the user is deleted.
+     */
     public void clear() {
         messages.clear();
         username = null;

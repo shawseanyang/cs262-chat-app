@@ -21,8 +21,12 @@ import com.chatapp.client.exceptions.UserAlreadyExistsException;
 import com.chatapp.client.exceptions.UserDoesNotExistException;
 import com.chatapp.protocol.Constants;
 
-// Entry point of the client application. Listens for user commands from the console and executes them. This class is responsible for UI logic. It is responsible for creating a channel to the server, and then passing the channel to the handlers.
-
+/*
+ * Entry point of the client application. Listens for user commands 
+ * from the console and executes them. This class is responsible for UI logic. 
+ * It is responsible for creating a channel to the server, and then passing 
+ * the channel to the handlers.
+ */
 public class Client {
   static Scanner command_in = new Scanner(System.in);
   static Socket socket;

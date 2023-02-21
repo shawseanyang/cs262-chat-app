@@ -1,5 +1,8 @@
 package com.chatapp.client.commands;
 
+/*
+ * This command is used to log in to an existing account.
+ */
 public class LogInCommand implements Command {
   private String username;
 

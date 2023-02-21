@@ -19,9 +19,19 @@ import com.chatapp.protocol.Message;
 import com.chatapp.protocol.Operation;
 import com.chatapp.utility.ByteConverter;
 
-// Helps the Client handle commands from the user because the Client is responsible for the UI logic. Each of the functions handles its command bu sending requests to the server, waiting for a response, then passing the response back to the caller.
+/*
+ * Helps the Client handle commands from the user because the Client is responsible 
+ * for the UI logic. Each of the functions handles its command bu sending requests 
+ * to the server, waiting for a response, then passing the response back to the caller.
+ */
 public class ClientHandler {
 
+  /*
+   * Handles the CreateAccount command by sending a request to the server, waiting
+   * for a response, then throwing an exception if the response indicates an error.
+   * @param command The command to handle
+   * @throws UserAlreadyExistsException If the user already exists
+   */
   public static void createAccount(CreateAccountCommand command) throws UserAlreadyExistsException, InvalidUsernameException {
     // Convert to an argument arraylist
     ArrayList<byte[]> args = parseStringsToArguments(new String[]{command.getUsername()});
@@ -39,6 +49,13 @@ public class ClientHandler {
       throw new InvalidUsernameException("The username " + command.getUsername() + " is invalid.");
   }
 
+  /*
+   * Handles the LogIn command by sending a request to the server, waiting for a
+   * response, then throwing an exception if the response indicates an error.
+   * @param command The command to handle
+   * @throws UserDoesNotExistException If the user does not exist
+   * @throws InvalidUsernameException If the username is invalid
+   */
   public static void deleteAccount(DeleteAccountCommand command) throws InvalidUsernameException, UserDoesNotExistException {
     // Convert to an argument arraylist
     ArrayList<byte[]> args = parseStringsToArguments(new String[]{command.getUsername()});
@@ -56,6 +73,12 @@ public class ClientHandler {
       throw new UserDoesNotExistException("The username " + command.getUsername() + " does not exist.");
   }
 
+  /*
+   * Handles the LogIn command by sending a request to the server, waiting for a
+   * response, then throwing an exception if the response indicates an error.
+   * @param command The command to handle
+   * @throws UserDoesNotExistException If the user does not exist
+   */
   public static void listAccounts(ListAccountsCommand command) {
     // Convert to an argument arraylist
     ArrayList<byte[]> args = parseStringsToArguments(new String[]{command.getPattern()});
@@ -76,6 +99,12 @@ public class ClientHandler {
     }
   }
 
+  /*
+   * Handles the LogIn command by sending a request to the server, waiting for a
+   * response, then throwing an exception if the response indicates an error.
+   * @param command The command to handle
+   * @throws UserDoesNotExistException If the user does not exist
+   */
   public static void logIn(LogInCommand command) throws UserDoesNotExistException {
     // Convert to an argument arraylist
     ArrayList<byte[]> args = parseStringsToArguments(new String[]{command.getUsername()});
@@ -91,6 +120,12 @@ public class ClientHandler {
       throw new UserDoesNotExistException("The username " + command.getUsername() + " does not exist.");
   }
 
+  /*
+   * Handles the LogOut command by sending a request to the server, waiting for a
+   * response, then throwing an exception if the response indicates an error.
+   * @param command The command to handle
+   * @throws NotLoggedInException If the user is not logged in
+   */
   public static void logOut(LogOutCommand command) throws NotLoggedInException {
     // Create a message to send to the server
     sendMessage(Operation.LOG_OUT, com.chatapp.protocol.Exception.NONE);
@@ -103,6 +138,13 @@ public class ClientHandler {
       throw new NotLoggedInException("You are not logged in.");
   }
 
+  /*
+   * Handles the SendMessage command by sending a request to the server, waiting
+   * for a response, then throwing an exception if the response indicates an error.
+   * @param command The command to handle
+   * @throws UserDoesNotExistException If the recipient does not exist
+   * @throws NotLoggedInException If the user is not logged in
+   */
   public static void sendMessage(SendMessageCommand command) throws UserDoesNotExistException, NotLoggedInException
   {
     // Convert to an argument arraylist
@@ -121,6 +163,12 @@ public class ClientHandler {
       throw new NotLoggedInException("You are not logged in.");
   }
 
+  /*
+   * Handles the DistributeMessage command by sending a request to the server,
+   * waiting for a response, then throwing an exception if the response indicates
+   * an error.
+   * @throws NotLoggedInException If the user is not logged in
+   */
   public static boolean distributeMessage() throws NotLoggedInException {
     // Create a message to send to the server
     sendMessage(Operation.DISTRIBUTE_MESSAGE, com.chatapp.protocol.Exception.NONE);
@@ -149,7 +197,14 @@ public class ClientHandler {
     return true;
   }
 
-  // Utility functions for communicating with the server
+  /* Utility functions for communicating with the server */ 
+
+  /*
+   * Sends a message to the server.
+   * @param operation The operation to perform
+   * @param exception The exception to throw
+   * @param args The arguments to pass to the operation
+   */
   private static void sendMessage(Operation operation, com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
     Message message = new Message(Constants.CURRENT_VERSION, operation, exception, args);
     try {
@@ -160,10 +215,19 @@ public class ClientHandler {
     }
   }
 
+  /*
+   * Sends a message to the server.
+   * @param operation The operation to perform
+   * @param exception The exception to throw
+   */
   private static void sendMessage(Operation operation, com.chatapp.protocol.Exception exception) {
       sendMessage(operation, exception, new ArrayList<byte[]>());
   }
 
+  /*
+   * Reads a message from the server.
+   * @return The message read from the server
+   */
   private static Message readMessage() {
     byte[] messageBytes = null;
     try {
@@ -181,7 +245,10 @@ public class ClientHandler {
     return message;
   }
 
-  // Utility functions for parsing arguments
+  /* 
+   * Parses a list of strings into a list of byte arrays.
+   * @param args The list of strings to parse
+   */
   private static ArrayList<byte[]> parseStringsToArguments(String[] args) {
     ArrayList<byte[]> arguments = new ArrayList<byte[]>();
     for (String arg : args) {

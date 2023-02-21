@@ -19,6 +19,9 @@ import com.chatapp.protocol.Operation;
 
 import com.chatapp.utility.ByteConverter;
 
+/*
+ * This class is used to handle a user's commands.
+ */
 public class UserHandler implements Runnable {
 
     private User user;
@@ -122,6 +125,10 @@ public class UserHandler implements Runnable {
 
     /* Sender-related functions */
     
+    /*
+     * This function is used to handle creating an account.
+     * @param usernameBytes The username of the account to create.
+     */
     private void createAccountHandler(byte[] usernameBytes) {
         String username = ByteConverter.byteArrayToString(usernameBytes);
         
@@ -132,6 +139,10 @@ public class UserHandler implements Runnable {
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
+    /*
+     * This function is used to handle deleting an account.
+     * @param usernameBytes The username of the account to delete.
+     */
     private void deleteAccountHandler(byte[] usernameBytes) {
         String username = ByteConverter.byteArrayToString(usernameBytes);
 
@@ -153,6 +164,10 @@ public class UserHandler implements Runnable {
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
+    /*
+     * This function is used to handle logging in.
+     * @param usernameBytes The username of the account to log in to.
+     */
     private void loginHandler(byte[] usernameBytes) {
         String username = ByteConverter.byteArrayToString(usernameBytes);
 
@@ -166,6 +181,9 @@ public class UserHandler implements Runnable {
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
+    /*
+     * This function is used to handle logging out.
+     */
     private void logoutHandler() {
         // Disassociate the socket from the user
         user.setSocket(null);
@@ -177,6 +195,11 @@ public class UserHandler implements Runnable {
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
+    /*
+     * This function is used to handle sending a message.
+     * @param recipientBytes The username of the recipient.
+     * @param message The message to send.
+     */
     private void sendMessageHandler(byte[] recipientBytes, byte[] message) {
         String recipient = ByteConverter.byteArrayToString(recipientBytes);
 
@@ -188,6 +211,10 @@ public class UserHandler implements Runnable {
         writeMessage(com.chatapp.protocol.Exception.NONE);
     }
 
+    /*
+     * This function is used to handle listing accounts.
+     * @param regexBytes The regex to match against.
+     */
     private void listAccountsHandler(byte[] regexBytes) {
         // Compile the regex
         String regexString = (ByteConverter.byteArrayToString(regexBytes));
@@ -220,6 +247,9 @@ public class UserHandler implements Runnable {
 
     /* Recipient-related functions */
 
+    /*
+     * This function is used to handle distributing a message.
+     */
     private void distributeMessageHandler() {
         // If the user has a message, send it
         if (user.hasMessages()) {
@@ -243,7 +273,9 @@ public class UserHandler implements Runnable {
 
     /* Utility functions */
 
-    // Utility function for validating the message
+    /*
+     * This function is used to validate the message.
+     */
     private com.chatapp.protocol.Exception validateMessage() {
         Operation operation = message.getOperation();
         ArrayList<byte[]> args = message.getArguments();
@@ -308,7 +340,9 @@ public class UserHandler implements Runnable {
         return com.chatapp.protocol.Exception.NONE;
     }
 
-    // Utility functions for sending response messages to the client
+    /*
+     * This function is used to send a message to the client.
+     */
     private void writeMessage(com.chatapp.protocol.Exception exception, ArrayList<byte[]> args) {
         // Check if socket is open
         if (socket.isClosed()) {
@@ -344,11 +378,16 @@ public class UserHandler implements Runnable {
         }
     }
 
+    /*
+     * This function is used to send a message to the client.
+     */
     private void writeMessage(com.chatapp.protocol.Exception exception) {
         writeMessage(exception, new ArrayList<byte[]>());
     }
 
-    // Utility function for determining if a user is logged in
+    /*
+     * This function is used to determine if a user is logged in.
+     */
     private boolean isLoggedIn() {
         return user != null && user.getSocket() != null && user.getSocket() == socket && user.getUsername() != null;
     }

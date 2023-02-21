@@ -3,6 +3,9 @@ package com.chatapp.utility;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/*
+ * This class is used to convert between byte arrays and other types.
+ */
 public class ByteConverter {
   public static String byteArrayToString(byte[] bytes) {
     return new String(bytes);

@@ -1,5 +1,8 @@
 package com.chatapp.client.commands;
 
+/*
+ * This command is used to list accounts.
+ */
 public class ListAccountsCommand implements Command {
   private String pattern;
 

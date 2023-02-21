@@ -1,5 +1,8 @@
 package com.chatapp.protocol;
 
+/*
+ * This class contains all the constants used in the protocol.
+ */
 public class Constants {
     public final static int PORT = 8000;
     public final static byte ARGUMENT_SEPARATOR = 9; // '\t'

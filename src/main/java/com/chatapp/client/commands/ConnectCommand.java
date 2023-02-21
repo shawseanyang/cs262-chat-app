@@ -1,5 +1,8 @@
 package com.chatapp.client.commands;
 
+/*
+ * This command is used to connect to a server.
+ */
 public class ConnectCommand implements Command {
   private String host;
 

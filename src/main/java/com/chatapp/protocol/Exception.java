@@ -1,7 +1,8 @@
 package com.chatapp.protocol;
 
-// An enumeration of possible exceptions
-
+/*
+ * This enumeration is used to represent possible exceptions.
+ */
 public enum Exception {
   NONE, // No exception
   USER_ALREADY_EXISTS,

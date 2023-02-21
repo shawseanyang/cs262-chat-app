@@ -1,5 +1,6 @@
 package com.chatapp.client.commands;
 
-// A command from the user
-
+/*
+ * This interface is used to represent a command.
+ */
 public interface Command {}

@@ -9,10 +9,10 @@ import com.chatapp.client.commands.LogInCommand;
 import com.chatapp.client.commands.LogOutCommand;
 import com.chatapp.client.commands.SendMessageCommand;
 
-// Parses a single string representing a commandline command into a Command object
-
-// syntax: <command> <arg1> <arg2> ...
-
+/*
+ * Parses a single string representing a commandline command into a Command object
+ * syntax: <command> <arg1> <arg2> ...
+ */
 public class CommandParser {
   public static Command parse(String command) throws IllegalArgumentException {
     try {

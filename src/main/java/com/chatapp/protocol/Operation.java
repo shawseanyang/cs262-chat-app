@@ -1,7 +1,8 @@
 package com.chatapp.protocol;
 
-// An enumeration of possible operations
-
+/*
+ * An enumeration of possible operations
+ */
 public enum Operation {
   CREATE_ACCOUNT,
   CREATE_ACCOUNT_RESPONSE,

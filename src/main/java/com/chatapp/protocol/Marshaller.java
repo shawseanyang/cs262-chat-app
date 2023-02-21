@@ -5,6 +5,9 @@ import java.util.Arrays;
 
 import com.chatapp.utility.ByteConverter;
 
+/*
+ * This class is used to marshall and unmarshall messages.
+ */
 public class Marshaller {
     public static byte[] marshall(Message message) {
         // marshall the arguments first so we know how long the message will be
@@ -50,7 +53,12 @@ public class Marshaller {
         return new Message(version, operation, exception, arguments);
     }
 
-    // marshalls arguments by escaping special characters and then concatenating them with the argument separator
+    /*
+     * Marshalls arguments by escaping special characters and then concatenating 
+     * them with the argument separator
+     * @param arguments the arguments to marshall
+     * @return the marshalled arguments
+     */
     private static byte[] marshallArguments(ArrayList<byte[]> arguments) {
       // parse arguments into an ArrayList of bytes, perform escaping, then convert back to byte[]
       ArrayList<Byte> output = new ArrayList<Byte>();
@@ -73,7 +81,12 @@ public class Marshaller {
       return ByteConverter.byteArrayListToByteArray(output);
     }
 
-    // unmarshalls arguments by separating them by the the argument separator and unescaping special characters
+    /* 
+     * Unmarshalls arguments by separating them by the the argument separator and 
+     * unescaping special characters
+     * @param marshalledMessage the marshalled message to unmarshall
+     * @return the unmarshalled arguments
+    */
     private static ArrayList<byte[]> unmarshallArguments(byte[] marshalledMessage) {
       ArrayList<byte[]> result = new ArrayList<byte[]>();
 
@@ -86,7 +99,12 @@ public class Marshaller {
       return result;
     }
 
-    // Escapes restricted characters by adding the escape character in front of them. Ex: \t becomes \\t and \n becomes \\n
+    /*
+     * Escapes restricted characters by adding the escape character in front of them. 
+     * Ex: \t becomes \\t and \n becomes \\n
+     * @param input the byte array to escape
+     * @return the escaped byte array
+     */
     private static byte[] escapeRestrictedCharacters(byte[] input) {
       // parse input into an ArrayList of bytes, perform escaping, then convert back to byte[]
       ArrayList<Byte> output = new ArrayList<Byte>();
@@ -110,7 +128,12 @@ public class Marshaller {
       return ByteConverter.byteArrayListToByteArray(output);
     }
 
-    // Unescapes restricted characters by removing the escape character in front of them. Ex: \\t becomes \t and \\n becomes \n
+    /*
+     * Unescapes restricted characters by removing the escape character in front of them. 
+     * Ex: \\t becomes \t and \\n becomes \n
+     * @param input the byte array to unescape
+     * @return the unescaped byte array
+     */
     private static byte[] unescapeRestrictedCharacters(byte[] input) {
       // parse input into an ArrayList of bytes, perform unescaping, then convert back to byte[]
       ArrayList<Byte> output = new ArrayList<Byte>();

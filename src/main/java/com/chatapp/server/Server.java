@@ -7,10 +7,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+/*
+ * This class is used to represent the server.
+ */
 public class Server {
 
-    // Inactive users should have a socket value of null
-    // <Username, User>
+    /*
+     * This map is used to map all the usernames to their respective User objects.
+     * Inactive users should have a socket value of null.
+     */
     static ConcurrentHashMap<String, User> clients = new ConcurrentHashMap<String, User>();
     public static void main(String[] args) throws IOException {
         System.out.println("[Server] Server is running...");
