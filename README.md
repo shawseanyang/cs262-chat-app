@@ -44,6 +44,8 @@ send andy Wow I'm surprised that worked!
 ```
 
 # Documentation
+## Engineering Notebook
+The engineering notebook can be found [here](https://docs.google.com/document/d/1cd2ADotJJuukOL3ebo9es9_DIUSupXIdjXFgi5i30cU/edit?usp=sharing)
 ## Sockets
 The server and client communicate over TCP sockets. The server listens on port 8080. The client connects to the server on port 8080. The client and server communicate using a custom protocol. 
 ## Protocol
